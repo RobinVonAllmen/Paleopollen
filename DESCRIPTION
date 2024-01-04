@@ -1,11 +1,16 @@
 Package: Paleopollen
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Provides useful tools for paleoecology and pollen analysis
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Authors@R: 
+    person("Robin", "von Allmen", , "robinvonallmen@hotmail.com", role = c("aut", "cre"))
+Description: This package provides paleo ecologists with the necessairy tool to create more modern pollen stratigraphies. It includes methods that can be used to compare multiple stratigraphies, compares samples through Principal Component analysis (PCA) and Cluster analysis (CA).
+License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
+LazyData: false
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports: RColorBrewer, stats, methods
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

@@ -1,28 +1,52 @@
-require(RColorBrewer)
+#' @title Creates a color scheme based on a named vector
+#' @description This function takes a named vector such as created by assignGroupToTaxa and will choose an appropriate color scheme from the RColorBrewer package. Optionally, a specific colour for each group variable can be defined or a specific ColorScheme will be chosen. Remind that the maximum amount of supported colours of a color palette in RColorBrewer is 12. A higher number of group variables will result in a greyscale plot which is also recommended for readability.
+#'
+#'
+#' @param namedList A vector containing named strings of format: c("Taxa" = "Group", ...)
+#' @param ... Optional arguments to be passed that specify what color scheme to be used.
+#'
+#' @param colorScheme name for any color scheme available in the RColorBrewer package. Any of the following:
+#' @param colors a vector containing named strings matching each group to a color of format: c("Trees" = "green", "Shrubs" = "#000000", "Grasses" = "#000", ...)
+#' @param greyscale a boolean value that sets all colors for all groups to black. This is recommended if it is not desired to subdivide pollen into specific groups and when more than 10 pollen taxa are used.
+#' @param colorblind a boolean value that determines whether the color map that maps each taxa to a color should be colorblind friendly.
+#'
+#' @import RColorBrewer
+#' @importFrom methods hasArg
+#' @importFrom stats setNames
+#' @return A named vector matching each taxa to a color based on it's group affiliation.
+#' @export
+#'
+#' @examples
+#' namedList <- c("Pinus" = "Trees", "Betula" = "Shrubs", "Poaceae" = "Grasses", "Picea" = "Trees")
+#' createColorMap(namedList)
+#'
+#' #>     Pinus    Betula   Poaceae     Picea      Artemisia
+#' #>    "#7FC97F" "#BEAED4" "#FDC086" "#7FC97F"   "#FFFF99"
+#'
+#' createColorMap(namedList, colorScheme = "Accent")
+#'
+#' #>     Pinus    Betula   Poaceae     Picea      Artemisia
+#' #>  "#7FC97F" "#BEAED4" "#FDC086"   "#7FC97F"   "#FFFF99"
+#'
+#' createColorMap(namedList, colors = c("Trees" = "green", "Shrubs" = "#000000", "Grasses" = "#000"))
+#'
+#' #>    Pinus    Betula     Poaceae     Picea     Artemisia
+#' #>    "green" "#000000"    "#000"   "green"     "red"
+#'
+#' createColorMap(namedList, greyscale = TRUE)
+#'
+#' #>    Pinus    Betula     Poaceae     Picea     Artemisia
+#' #>  "#0d0d0d" "#0d0d0d"   "#0d0d0d"   "#0d0d0d" "#0d0d0d"
+#'
+#' createColorMap(namedList, colorblind = TRUE)
+#'
+#' #>  Pinus    Betula       Poaceae     Picea     Artemisia
+#' #> "#A6611A" "#DFC27D"     "#80CDC1"   "#A6611A"  "#018571"
+#'
 
-colorSchemes <- RColorBrewer::brewer.pal.info
-
-#---------------------------------------------------------------------------------------------------------
-# This function checks whether the strings provided are a hex representation of colors.
-#---------------------------------------------------------------------------------------------------------
-#' @keywords internal
-checkHexColor <- function(a){
-  if(!is.character(a)){ return(F)}
-  if(is.null(a)){return(F)}
-  if(!(nchar(a) == 4 || nchar(a) == 7)){ return(F)}
-  if(substr(a,1,1) !="#"){return(F)}
-  if(!grepl("^#[0-9a-fA-F]+$",a)){print("no")
-    return(F)}else{return(T)}
-}
-
-#---------------------------------------------------------------------------------------------------------
-# This function assigns each taxa to a color based on their grouping variable or optional parameters i.e.,
-# direct Color scheme (vector of color values has to be the same length as taxa names or the amount of groups)
-# parameters for choosing Color Scheme either black and white or one available from ColorBrewer.
-#---------------------------------------------------------------------------------------------------------
-#' @keywords internal
 createColorMap <- function(namedList, ...){
 
+  colorSchemes <- RColorBrewer::brewer.pal.info
   if(is.numeric(namedList)) namedList <- paste(namedList)
   if(is.null(names(namedList))) namedList <- setNames(namedList, namedList)
   assignedColors <- namedList
@@ -75,7 +99,7 @@ createColorMap <- function(namedList, ...){
       warning(call. = FALSE, immediate. = TRUE,
       sprintf("The chosen colorScheme has only %d colours, but you have &d groups/taxa. Changing to Set3.", colorSchemes[params$colorScheme,]$maxcolors ,length(groups)))
 
-      translation_key <- setNames(brewer.pal(length(groups), "Set3"),groups)
+      translation_key <- setNames(RColorBrewer::brewer.pal(length(groups), "Set3"),groups)
 
     # Checks whether the supplied number of taxa is higher than the maximum amount of colours supplied by any colorBrewer
     }else if(length(groups) > 12) {
@@ -87,7 +111,7 @@ createColorMap <- function(namedList, ...){
     }else{
 
       # If none of the above are true, the colorScheme will be assigned to the respective group as intended.
-      translation_key <- setNames(brewer.pal(length(groups), params$colorScheme) ,groups)
+      translation_key <- setNames(RColorBrewer::brewer.pal(length(groups), params$colorScheme) ,groups)
     }
   }
 #----------------------------------------------------------------
@@ -178,4 +202,17 @@ createColorMap <- function(namedList, ...){
   assignedColors <- setNames(translation_key[assignedColors], names(assignedColors))
 
   return(assignedColors)
+}
+
+#---------------------------------------------------------------------------------------------------------
+# This function checks whether the strings provided are a hex representation of colors.
+#---------------------------------------------------------------------------------------------------------
+#' @keywords internal
+checkHexColor <- function(a){
+  if(!is.character(a)){ return(F)}
+  if(is.null(a)){return(F)}
+  if(!(nchar(a) == 4 || nchar(a) == 7)){ return(F)}
+  if(substr(a,1,1) !="#"){return(F)}
+  if(!grepl("^#[0-9a-fA-F]+$",a)){print("no")
+    return(F)}else{return(T)}
 }
